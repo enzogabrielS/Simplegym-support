@@ -1,0 +1,44 @@
+[
+  {
+    "level": 1,
+    "minXp": 0,
+    "title": "Primeiro passo",
+    "description": "Comece no seu ritmo e transforme cada treino em hábito."
+  },
+  {
+    "level": 2,
+    "minXp": 120,
+    "title": "Em movimento",
+    "description": "Você já iniciou uma rotina. Continue registrando seus treinos."
+  },
+  {
+    "level": 3,
+    "minXp": 300,
+    "title": "Ritmo constante",
+    "description": "A constância está aparecendo nos seus resultados."
+  },
+  {
+    "level": 4,
+    "minXp": 550,
+    "title": "Foco total",
+    "description": "Seu comprometimento está cada vez mais forte."
+  },
+  {
+    "level": 5,
+    "minXp": 900,
+    "title": "Evolução visível",
+    "description": "Você conquistou uma base sólida para novos desafios."
+  },
+  {
+    "level": 6,
+    "minXp": 1400,
+    "title": "Alta consistência",
+    "description": "Treinar já faz parte da sua semana."
+  },
+  {
+    "level": 7,
+    "minXp": 2100,
+    "title": "Referência de rotina",
+    "description": "Você atingiu o nível máximo atual do SimpleGym."
+  }
+]

@@ -1,0 +1,4 @@
+/assets/php/config.local.php
+/.runtime/
+/tests/.artifacts/
+*.log

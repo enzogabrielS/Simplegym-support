@@ -1,0 +1,13 @@
+[
+  {"id":"peito","name":"Peito","description":"Músculos peitorais"},
+  {"id":"costas","name":"Costas","description":"Dorsal, rombóides e região média das costas"},
+  {"id":"biceps","name":"Bíceps","description":"Parte frontal do braço"},
+  {"id":"triceps","name":"Tríceps","description":"Parte posterior do braço"},
+  {"id":"ombros","name":"Ombros","description":"Deltoides"},
+  {"id":"pernas","name":"Pernas","description":"Principalmente quadríceps"},
+  {"id":"posteriores","name":"Posteriores de perna","description":"Posterior da coxa"},
+  {"id":"gluteos","name":"Glúteos","description":"Região glútea"},
+  {"id":"core","name":"Core e abdômen","description":"Abdômen, lombar e estabilizadores"},
+  {"id":"antebracos","name":"Antebraços","description":"Músculos de pegada e antebraço"},
+  {"id":"cardio","name":"Cardio e condicionamento","description":"Sistema cardiovascular e resistência"}
+]

@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+const source = readFileSync((process.env.SIMPLEGYM_PROJECT_PATH || 'D:/HTML/Tcc/simplegym') + '/assets/js/app.js', 'utf8');
+const fn = source.slice(source.indexOf('function finishWorkout()'), source.indexOf('function confirmDeletePlan('));
+const state = { xp: 0, totalWorkouts: 0, activityMinutes: 0, completedDates: {}, streak: 0 };
+let day = '2026-09-09';
+const context = vm.createContext({ state, XP_PER_WORKOUT: 60, todayDateKey: () => day, calculateCurrentStreak: () => 1, saveState() {}, renderAll() {}, openModal() {}, formatActivity: n => n, escapeHTML: s => s });
+vm.runInContext(fn, context);
+function finish(rewardXp) { state.session = { startedAt: Date.now()-60000, activeMilliseconds: 0, rewardXp, planIds: ['teste'] }; vm.runInContext('finishWorkout()', context); }
+finish(true);
+assert.equal(state.totalWorkouts, 1);
+assert.equal(state.xp, 60);
+for (let i = 0; i < 20; i++) finish(false);
+assert.equal(state.totalWorkouts, 1);
+assert.equal(state.xp, 60);
+assert.ok(state.activityMinutes >= 21);
+day = '2026-09-10';
+finish(false);
+assert.equal(state.totalWorkouts, 1);
+assert.equal(state.completedDates[day], undefined);
+finish(true);
+assert.equal(state.totalWorkouts, 2);
+assert.equal(state.xp, 120);
+console.log('Treino normal, 20 repetições e virada do dia: contadores corretos.');
