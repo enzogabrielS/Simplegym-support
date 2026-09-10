@@ -1,0 +1,23 @@
+digraph TCC {
+graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.6, ranksep=0.9, splines=spline, outputorder=edgesfirst];
+node [shape=box,style="rounded,filled",fillcolor="#f4f5f6",color="#414b55",penwidth=1.2,fontname="Arial",fontsize=17,margin="0.23,0.17"];
+edge [color="#5b6570",penwidth=1.25,arrowsize=0.65,fontname="Arial",fontsize=12,fontcolor="#353f49"];
+usuarios [label="USUÁRIOS\nConta e identificação",fillcolor="#fff0bf"];
+treinos [label="TREINOS\nRotinas personalizadas"];
+exercicios [label="EXERCÍCIOS\nNome, foto e descrição",fillcolor="#fff0bf"];
+grupos_musculares [label="GRUPOS MUSCULARES\nClassificação dos exercícios"];
+perfis_usuario [label="PERFIL\nXP, sequência e estatísticas"];
+agenda_semanal [label="AGENDA SEMANAL\nDias e treinos programados"];
+treino_exercicios [label="ITENS DO TREINO\nOrdem, séries, repetições e carga"];
+exercicio_grupos [label="EXERCÍCIO × GRUPO\nAssociação entre os catálogos"];
+usuarios -> perfis_usuario [label="possui"];
+usuarios -> treinos [label="cria"];
+usuarios -> exercicios [label="cria exercícios pessoais"];
+treinos -> agenda_semanal [label="é programado em"];
+treinos -> treino_exercicios [label="contém"];
+exercicios -> treino_exercicios [label="compõem"];
+exercicios -> exercicio_grupos;
+grupos_musculares -> exercicio_grupos [label="classificam"];
+{rank=same; perfis_usuario; treinos; exercicios; grupos_musculares;}
+{rank=same; agenda_semanal; treino_exercicios; exercicio_grupos;}
+}
