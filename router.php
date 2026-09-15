@@ -4,5 +4,5 @@ if (preg_match('~(^|/)\.|^/(views|database|scripts|tests)(/|$)|\.(sql|ps1|log|md
     http_response_code(404);
     exit;
 }
-if ($caminho === '/') { require __DIR__ . '/index.php'; return true; }
+if ($caminho === '/') { require __DIR__ . '/simplegym/index.php'; return true; }
 return false;

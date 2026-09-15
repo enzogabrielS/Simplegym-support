@@ -25,6 +25,6 @@ if (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyCon
 }
 $sessionPath = Join-Path $Runtime 'sessions'
 New-Item -ItemType Directory -Path $sessionPath -Force | Out-Null
-$phpArgs = @('-d', ('extension_dir="{0}"' -f (Join-Path $Runtime 'php\ext')), '-d', 'extension=pdo_mysql', '-d', ('session.save_path="{0}"' -f $sessionPath), '-d', 'post_max_size=16M', '-S', "127.0.0.1:$Port", '-t', ('"{0}"' -f $PSScriptRoot), ('"{0}"' -f (Join-Path $PSScriptRoot 'router.php')))
+$phpArgs = @('-d', ('extension_dir="{0}"' -f (Join-Path $Runtime 'php\ext')), '-d', 'extension=pdo_mysql', '-d', ('session.save_path="{0}"' -f $sessionPath), '-d', 'post_max_size=16M', '-S', "127.0.0.1:$Port", '-t', ('"{0}"' -f (Join-Path $PSScriptRoot 'simplegym')), ('"{0}"' -f (Join-Path $PSScriptRoot 'router.php')))
 $phpProcess = Start-Process -FilePath $phpExe -ArgumentList $phpArgs -WindowStyle Hidden -RedirectStandardError (Join-Path $Runtime 'php-server.log') -RedirectStandardOutput (Join-Path $Runtime 'php-output.log') -PassThru
 Write-Output "SimpleGym: http://localhost:$Port | PHP PID: $($phpProcess.Id)"
