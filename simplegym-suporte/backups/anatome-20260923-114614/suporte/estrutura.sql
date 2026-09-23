@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS perfis_usuario (
     minutos_atividade DOUBLE NOT NULL DEFAULT 0,
     tema ENUM('dark','light','violet') NOT NULL DEFAULT 'dark',
     unidade_carga ENUM('kg','lb') NOT NULL DEFAULT 'kg',
-    preferencia_treino ENUM('musculacao','calistenia','ambas') NOT NULL DEFAULT 'ambas',
     atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -37,15 +36,6 @@ CREATE TABLE IF NOT EXISTS exercicios (
     execucao TEXT NOT NULL,
     tipo ENUM('forca','cardio') NOT NULL DEFAULT 'forca',
     ordem INT UNSIGNED NOT NULL DEFAULT 0,
-    modalidade ENUM('musculacao','calistenia','ambas') NOT NULL DEFAULT 'ambas',
- anatome_id VARCHAR(180) NULL,
- categoria_api VARCHAR(100) NULL,
- equipamento VARCHAR(100) NULL,
- nivel_api VARCHAR(80) NULL,
- diagrama_url TEXT NULL,
- video_url TEXT NULL,
- idioma_instrucoes VARCHAR(12) NULL,
- atualizado_anatome_em TIMESTAMP NULL,
     dono INT UNSIGNED GENERATED ALWAYS AS (IFNULL(usuario_id, 0)) STORED,
     UNIQUE KEY exercicio_por_dono (dono, codigo),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
@@ -158,20 +148,4 @@ CREATE TABLE IF NOT EXISTS sessao_exercicios (
     PRIMARY KEY (usuario_id, ordem),
     FOREIGN KEY (usuario_id) REFERENCES treino_sessoes(usuario_id) ON DELETE CASCADE,
     FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS exercicio_anatomia (
- exercicio_id BIGINT UNSIGNED NOT NULL,
- papel ENUM('primario','secundario') NOT NULL,
- ordem INT UNSIGNED NOT NULL,
- musculo VARCHAR(200) NOT NULL,
- PRIMARY KEY (exercicio_id,papel,ordem),
- FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-CREATE TABLE IF NOT EXISTS exercicio_instrucoes (
- exercicio_id BIGINT UNSIGNED NOT NULL,
- ordem INT UNSIGNED NOT NULL,
- instrucao TEXT NOT NULL,
- PRIMARY KEY (exercicio_id,ordem),
- FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

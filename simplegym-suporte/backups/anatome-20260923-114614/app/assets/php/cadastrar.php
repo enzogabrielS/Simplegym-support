@@ -8,8 +8,6 @@ if (($dados['termsAccepted'] ?? null) !== VERSAO_TERMOS) {
 $nome = trim((string) ($dados['name'] ?? ''));
 $email = strtolower(trim((string) ($dados['email'] ?? '')));
 $senha = (string) ($dados['password'] ?? '');
-$modalidade = $dados['trainingPreference'] ?? null;
-if (!in_array($modalidade, ['musculacao', 'calistenia', 'ambas'], true)) responder(['message' => 'Escolha musculação, calistenia ou ambas.'], 422);
 if (strlen($nome) < 2 || strlen($nome) > 80 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
     responder(['message' => 'Informe seu nome e um email válido.'], 422);
 }
@@ -21,8 +19,8 @@ try {
     $inserir = $conecta->prepare('INSERT INTO usuarios (nome, email, senha_hash) VALUES (?, ?, ?)');
     $inserir->execute([$nome, $email, password_hash($senha, PASSWORD_DEFAULT)]);
     $id = (int) $conecta->lastInsertId();
-    $inserir = $conecta->prepare('INSERT INTO perfis_usuario (usuario_id, preferencia_treino) VALUES (?, ?)');
-    $inserir->execute([$id, $modalidade]);
+    $inserir = $conecta->prepare('INSERT INTO perfis_usuario (usuario_id) VALUES (?)');
+    $inserir->execute([$id]);
     $texto = textoTermos();
     $inserir = $conecta->prepare('INSERT INTO aceites_termos (usuario_id, versao, texto, texto_sha256) VALUES (?, ?, ?, ?)');
     $inserir->execute([$id, VERSAO_TERMOS, $texto, hash('sha256', $texto)]);

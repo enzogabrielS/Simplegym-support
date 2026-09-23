@@ -7,6 +7,6 @@ function dadosIniciais(): array
         'customExercises' => [], 'exerciseDefaults' => (object) [],
         'xp' => 0, 'streak' => 0, 'totalWorkouts' => 0, 'activityMinutes' => 0,
         'completedDates' => (object) [], 'freeDayCheckins' => (object) [],
-        'theme' => 'dark', 'weightUnit' => 'kg', 'trainingPreference' => 'ambas', 'session' => null
+        'theme' => 'dark', 'weightUnit' => 'kg', 'session' => null
     ];
 }

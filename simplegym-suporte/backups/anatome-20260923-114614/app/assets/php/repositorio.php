@@ -26,7 +26,6 @@ function carregarDadosUsuario(int $usuarioId): array
     $dados['activityMinutes'] = (float) $perfil['minutos_atividade'];
     $dados['theme'] = $perfil['tema'];
     $dados['weightUnit'] = $perfil['unidade_carga'] ?? 'kg';
-    $dados['trainingPreference'] = $perfil['preferencia_treino'];
     foreach (listarExercicios($usuarioId) as $exercicio) {
         if ($exercicio['personalizado']) $dados['customExercises'][] = $exercicio['dados'];
     }
@@ -138,8 +137,5 @@ function gravarDadosUsuario(int $usuarioId, array $dados): void
     consultar('UPDATE perfis_usuario SET xp = ?, dias_seguidos = ?, treinos_concluidos = ?, minutos_atividade = ?, tema = ? WHERE usuario_id = ?', [$dados['xp'], $dados['streak'], $dados['totalWorkouts'], $dados['activityMinutes'], $dados['theme'], $usuarioId]);
     if (isset($dados['weightUnit'])) {
         consultar('UPDATE perfis_usuario SET unidade_carga = ? WHERE usuario_id = ?', [$dados['weightUnit'], $usuarioId]);
-    }
-    if (isset($dados['trainingPreference'])) {
-        consultar('UPDATE perfis_usuario SET preferencia_treino = ? WHERE usuario_id = ?', [$dados['trainingPreference'], $usuarioId]);
     }
 }

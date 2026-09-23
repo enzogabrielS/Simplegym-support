@@ -12,8 +12,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/app.css" />
-    <link rel="stylesheet" href="assets/css/anatome.css?v=20260923" />
-    <link rel="stylesheet" href="assets/css/exercise-library.css?v=20260923-ux" />
     <link rel="stylesheet" href="assets/css/conta.css?v=20260917" />
     <link rel="stylesheet" href="assets/css/termos.css" />
   </head>
@@ -72,12 +70,7 @@
           </div>
 
           <div class="tab-panel active" data-panel="exercises">
-            <header class="library-heading"><div><h2>Sua biblioteca</h2><p>Encontre seu próximo movimento.</p></div><button class="add-exercise-button" data-action="open-custom-exercise" data-return="library"><i data-lucide="plus"></i> Criar</button></header>
-            <div class="library-tools">
-              <label class="library-search"><i data-lucide="search"></i><input id="library-search" type="search" placeholder="Buscar exercício ou músculo" aria-label="Buscar exercício ou músculo" autocomplete="off"></label>
-              <div class="library-modes" role="group" aria-label="Modalidade dos exercícios"><button type="button" data-library-mode="ambas" aria-pressed="true">Ambas</button><button type="button" data-library-mode="musculacao" aria-pressed="false">Musculação</button><button type="button" data-library-mode="calistenia" aria-pressed="false">Calistenia</button></div>
-              <label class="library-muscle"><i data-lucide="target"></i><select id="library-muscle" aria-label="Filtrar por músculo"><option value="">Todos os músculos</option></select></label>
-            </div>
+            <article class="exercise-library-intro"><span><i data-lucide="sliders-horizontal"></i></span><div><strong>Exercícios salvos</strong><p>Ajuste séries, repetições e cargas. Personalize também os dados dos exercícios criados por você.</p></div><button class="add-exercise-button" data-action="open-custom-exercise" data-return="library"><i data-lucide="plus"></i> Novo</button></article>
             <div class="saved-exercises" id="saved-exercises"></div>
           </div>
 
@@ -97,7 +90,7 @@
           <div class="page-heading"><p class="micro-title">MINHA CONTA</p><h1>Perfil</h1></div>
           <article class="profile-hero"><span class="profile-avatar">SG</span><div><h2>Meu perfil</h2><p id="profile-level">Nível 1 · Primeiro passo</p><div class="level-bar"><i id="profile-level-progress"></i></div><small><span id="profile-xp">0</span> / <span id="profile-next-xp">120</span> <span id="profile-xp-copy">XP para o nível 2</span></small><em id="profile-level-description">Comece no seu ritmo.</em></div><button class="square-icon" data-action="edit-profile" aria-label="Ver perfil"><i data-lucide="user-round"></i></button></article>
           <div class="profile-stats"><article><strong id="profile-workouts">0</strong><span>treinos</span></article><article><strong id="profile-streak">0</strong><span>dias seguidos</span></article><article><strong id="profile-activity">0min</strong><span>em atividade</span></article></div>
-          <section class="settings-block"><p class="micro-title">PREFERÊNCIAS</p><div class="setting-list"><button data-action="training-preference"><span class="setting-icon yellow"><i data-lucide="dumbbell"></i></span><span><strong>Modalidade de treino</strong><small id="training-current">Ambas</small></span><i data-lucide="chevron-right"></i></button><button data-action="weight-unit"><span class="setting-icon yellow"><i data-lucide="scale"></i></span><span><strong>Unidade de carga</strong><small id="weight-unit-current">Quilogramas (kg)</small></span><i data-lucide="chevron-right"></i></button><button data-action="appearance"><span class="setting-icon blue"><i data-lucide="palette"></i></span><span><strong>Aparência</strong><small id="appearance-current">Tema escuro</small></span><i data-lucide="chevron-right"></i></button></div></section>
+          <section class="settings-block"><p class="micro-title">PREFERÊNCIAS</p><div class="setting-list"><button data-action="weight-unit"><span class="setting-icon yellow"><i data-lucide="scale"></i></span><span><strong>Unidade de carga</strong><small id="weight-unit-current">Quilogramas (kg)</small></span><i data-lucide="chevron-right"></i></button><button data-action="appearance"><span class="setting-icon blue"><i data-lucide="palette"></i></span><span><strong>Aparência</strong><small id="appearance-current">Tema escuro</small></span><i data-lucide="chevron-right"></i></button></div></section>
           <section class="settings-block"><p class="micro-title">CONFIGURAÇÕES</p><div class="setting-list"><button data-action="privacy"><span class="setting-icon gray"><i data-lucide="shield-check"></i></span><span><strong>Privacidade e dados</strong><small>Gerencie suas informações</small></span><i data-lucide="chevron-right"></i></button><button data-action="terms"><span class="setting-icon gray"><i data-lucide="file-text"></i></span><span><strong>Termo de responsabilidade</strong><small>Riscos, cuidados e condições de uso</small></span><i data-lucide="chevron-right"></i></button></div></section>
           <button class="logout" data-action="logout"><i data-lucide="log-out"></i> Sair da conta</button>
         </section>
@@ -121,7 +114,6 @@
     <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
     <template id="responsibility-terms-template"><?php require __DIR__ . '/termos-conteudo.php'; ?></template>
     <script src="assets/js/api.js"></script>
-    <script src="assets/js/exercise-library.js?v=20260923-ux"></script>
-    <script src="assets/js/app.js?v=20260923-ux"></script>
+    <script src="assets/js/app.js?v=20260917-unidades"></script>
   </body>
 </html>

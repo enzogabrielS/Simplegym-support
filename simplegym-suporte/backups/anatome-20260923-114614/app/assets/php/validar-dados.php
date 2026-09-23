@@ -109,12 +109,6 @@ function validarDados(array $dados): array
     $resultado['exerciseDefaults'] = (object) $padroes;
     validarCondicao(in_array($dados['theme'] ?? null, ['dark', 'light', 'violet'], true));
     $resultado['theme'] = $dados['theme'];
-    if (array_key_exists('trainingPreference', $dados)) {
-        validarCondicao(in_array($dados['trainingPreference'], ['musculacao', 'calistenia', 'ambas'], true));
-        $resultado['trainingPreference'] = $dados['trainingPreference'];
-    } else {
-        unset($resultado['trainingPreference']);
-    }
     // Clientes antigos não devem sobrescrever a preferência já salva.
     if (array_key_exists('weightUnit', $dados)) {
         validarCondicao(in_array($dados['weightUnit'], ['kg', 'lb'], true));

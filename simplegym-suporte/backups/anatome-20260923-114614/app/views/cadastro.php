@@ -13,7 +13,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/auth.css" />
     <link rel="stylesheet" href="../assets/css/termos.css" />
-    <link rel="stylesheet" href="../assets/css/anatome.css?v=20260923" />
   </head>
   <body>
     <main class="auth-page">
@@ -45,13 +44,6 @@
           </div>
           <p class="password-hint">Use de 8 a 72 caracteres. Você continuará conectado neste dispositivo por até 30 dias.</p>
           <p class="auth-error" role="alert" hidden></p>
-          <fieldset class="training-choice">
-            <legend>Como você prefere treinar?</legend>
-            <p>Vamos organizar sua biblioteca. Você pode mudar depois no perfil.</p>
-            <label><input type="radio" name="trainingPreference" value="musculacao" required><span><strong>Musculação</strong><small>Halteres, barras e máquinas</small></span></label>
-            <label><input type="radio" name="trainingPreference" value="calistenia" required><span><strong>Calistenia</strong><small>Exercícios com o peso do corpo</small></span></label>
-            <label><input type="radio" name="trainingPreference" value="ambas" required><span><strong>Ambas</strong><small>Biblioteca completa das duas modalidades</small></span></label>
-          </fieldset>
           <details class="terms-disclosure">
             <summary>Leia o termo de responsabilidade</summary>
             <?php require __DIR__ . '/termos-conteudo.php'; ?>

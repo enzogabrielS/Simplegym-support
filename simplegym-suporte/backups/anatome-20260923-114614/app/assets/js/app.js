@@ -46,7 +46,7 @@ const state = {
   plans: [],
   schedule: clone(DEFAULT_SCHEDULE),
   streak: 0, xp: 0, totalWorkouts: 0, activityMinutes: 0,
-  completedDates: {}, freeDayCheckins: {}, theme: 'dark', weightUnit: 'kg', trainingPreference: 'ambas',
+  completedDates: {}, freeDayCheckins: {}, theme: 'dark', weightUnit: 'kg',
   selectedDay: todayKey(),
   session: null
 };
@@ -77,7 +77,7 @@ function saveState() {
   const snapshot = JSON.stringify({
     plans: state.plans, schedule: state.schedule, streak: state.streak, xp: state.xp,
     totalWorkouts: state.totalWorkouts, completedDates: state.completedDates, freeDayCheckins: state.freeDayCheckins,
-    activityMinutes: state.activityMinutes, theme: state.theme, weightUnit: state.weightUnit, trainingPreference: state.trainingPreference,
+    activityMinutes: state.activityMinutes, theme: state.theme, weightUnit: state.weightUnit,
     customExercises: state.customExercises, exerciseDefaults: state.exerciseDefaults, session: state.session
   });
   latestSnapshot = snapshot;
@@ -121,28 +121,6 @@ async function logout() {
 }
 function getPlan(id) { return state.plans.find(plan => plan.id === id); }
 function getExercise(id) { return state.exercises.find(exercise => exercise.id === id); }
-function modalityLabel(value) { return ({musculacao:'Musculação', calistenia:'Calistenia', ambas:'Ambas'})[value] || 'Ambas'; }
-function preferredExercise(exercise) {
-  return isCustomExercise(exercise.id) || state.trainingPreference === 'ambas' || !exercise.modality || exercise.modality === 'ambas' || exercise.modality === state.trainingPreference;
-}
-function exerciseVisual(exercise) {
-  return `<figure class="anatomy-figure exercise-visual"><img src="${escapeHTML(exercise.diagram || exercise.photo)}" alt="${exercise.diagram ? 'Músculos trabalhados' : 'Imagem de ' + escapeHTML(exercise.name)}" referrerpolicy="no-referrer"><figcaption>${exercise.diagram ? 'Músculos trabalhados · não representa a execução' : 'Imagem do exercício'}</figcaption></figure>`;
-}
-function anatomyInfo(exercise) {
-  const level = exerciseLevel(exercise);
-  let video = '';
-  try { const url = new URL(exercise.videoUrl); if (url.protocol === 'https:') video = `<a class="exercise-video" href="${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer"><i data-lucide="play"></i> Ver demonstração <i data-lucide="external-link"></i></a>`; } catch {}
-  const steps = !isCustomExercise(exercise.id) ? exerciseGuidance[exercise.id] : null;
-  const secondary = [...new Set([...(exercise.primaryMuscles || []).slice(1), ...(exercise.secondaryMuscles || [])])].filter(m=>m!==exerciseFocus(exercise));
-  return `<section class="exercise-facts"><div><i data-lucide="target"></i><span><small>Foco principal</small><strong>${escapeHTML(exerciseFocus(exercise))}</strong></span></div><div><i data-lucide="dumbbell"></i><span><small>Equipamento</small><strong>${escapeHTML(exerciseEquipment(exercise))}</strong></span></div>${level ? `<div><i data-lucide="signal"></i><span><small>Dificuldade</small><strong>${escapeHTML(level)}</strong></span></div>` : ''}</section>${video}${steps ? `<section class="exercise-steps"><h3>Como fazer</h3><ol>${steps.map(step=>`<li>${escapeHTML(step)}</li>`).join('')}</ol></section>` : ''}${secondary.length ? `<details class="exercise-extra"><summary>Também trabalha</summary><p>${escapeHTML(secondary.join(' · '))}</p></details>` : ''}`;
-}
-document.addEventListener('error', event => {
-  const img = event.target;
-  if (img.tagName !== 'IMG' || !img.src.startsWith('https://api.anatome.dev/')) return;
-  img.hidden = true;
-  const caption = img.closest('figure')?.querySelector('figcaption');
-  if (caption) caption.textContent = 'Imagem indisponível no momento. Veja as orientações abaixo.';
-}, true);
 function getMuscleGroup(id) { return state.muscleGroups.find(group => group.id === id); }
 function getExerciseGroupIds(exercise) {
   return exercise?.muscleGroups || [];
@@ -300,7 +278,7 @@ function renderHome() {
   document.getElementById('day-context').textContent = selectedPlans.length ? `${dayLabel}: ${selectedPlans.map(plan => plan.name).join(' + ')}` : `${dayLabel}: dia livre`;
   document.getElementById('today-list').innerHTML = entries.slice(0, 4).map(item => `
     <article class="exercise-card">
-      <div class="exercise-thumb"><img loading="lazy" src="${escapeHTML(item.exercise.photo)}" alt="${item.exercise.diagram ? 'Mapa muscular' : 'Imagem'} de ${escapeHTML(item.exercise.name)}" /></div>
+      <div class="exercise-thumb"><img src="${escapeHTML(item.exercise.photo)}" alt="Exemplo de ${escapeHTML(item.exercise.name)}" /></div>
       <div><h3>${escapeHTML(item.exercise.name)}</h3><p>${escapeHTML(item.planName)}</p><small><i data-lucide="layers-3"></i>${configSummary(item.config)}</small></div>
       <button class="exercise-info" data-action="open-exercise" data-plan-id="${item.planId}" data-index="${item.index}" aria-label="Ver detalhes de ${escapeHTML(item.exercise.name)}"><i data-lucide="info"></i></button>
     </article>`).join('');
@@ -354,7 +332,6 @@ function renderProfile() {
   document.getElementById('profile-workouts').textContent = state.totalWorkouts;
   document.getElementById('profile-activity').textContent = formatActivity(state.activityMinutes);
   document.getElementById('appearance-current').textContent = themeLabel(state.theme);
-  document.getElementById('training-current').textContent = modalityLabel(state.trainingPreference);
   document.getElementById('weight-unit-current').textContent = state.weightUnit === 'lb' ? 'Libras (lb)' : 'Quilogramas (kg)';
 }
 
@@ -366,7 +343,20 @@ function renderPlans() {
       <span><p>${escapeHTML(plan.groups.join(' · ').toUpperCase())}</p><h3>${escapeHTML(plan.name)}</h3><small>${plan.exercises.length} exercícios · editável</small></span>
       <i data-lucide="chevron-right"></i>
     </button>`).join('');
-  renderExerciseLibrary();
+  const savedExerciseEntries = state.plans.flatMap(plan => plan.exercises.map((config, index) => ({ plan, config, index, exercise: getExercise(config.exerciseId) })).filter(item => item.exercise));
+  const usedExerciseIds = new Set(savedExerciseEntries.map(item => item.exercise.id));
+  state.exercises.filter(exercise => !usedExerciseIds.has(exercise.id)).forEach(exercise => savedExerciseEntries.push({ plan: null, config: null, index: -1, exercise }));
+  const exerciseLibrary = state.muscleGroups.map(group => {
+    const entries = savedExerciseEntries.filter(item => getExerciseGroupIds(item.exercise).includes(group.id));
+    if (!entries.length) return '';
+    return `<section class="exercise-group library-group"><div class="exercise-group-heading"><strong>${escapeHTML(group.name)}</strong><span>${entries.length} ${entries.length === 1 ? 'exercício' : 'exercícios'}</span></div><div class="saved-exercises">${entries.map(item => `
+      <button class="saved-exercise-card" data-action="edit-saved-exercise" data-plan-id="${item.plan?.id || ''}" data-index="${item.index}" data-exercise-id="${item.exercise.id}">
+        <img src="${escapeHTML(item.exercise.photo)}" alt="" />
+        <span><p>${item.plan ? escapeHTML(item.plan.name.toUpperCase()) : 'BIBLIOTECA DE EXERCÍCIOS'}</p><strong>${escapeHTML(item.exercise.name)}${isCustomExercise(item.exercise.id) ? '<em class="custom-exercise-indicator">Seu</em>' : ''}</strong><small>${configSummary(item.config || defaultExerciseConfig(item.exercise.id))}</small></span>
+        <i data-lucide="pencil"></i>
+      </button>`).join('')}</div></section>`;
+  }).join('');
+  document.getElementById('saved-exercises').innerHTML = exerciseLibrary || '<p class="simple-copy">Crie um treino ou um exercício personalizado para montar sua biblioteca.</p>';
   document.getElementById('schedule-list').innerHTML = WEEK_DAYS.map(day => {
     const plans = plansForDay(day.key);
     const description = plans.length ? plans.map(plan => plan.name).join(' + ') : 'Sem treino programado';
@@ -412,8 +402,7 @@ function openSavedExerciseEditor(planId, index, exerciseId = '') {
   openModal(`
     <h2 class="modal-title" id="modal-title">${custom ? 'Editar exercício' : escapeHTML(exercise.name)}</h2>
     <p class="modal-subtitle">${plan ? `${escapeHTML(plan.name)} · ` : ''}Ajuste séries, repetições e carga.</p>
-    ${exerciseVisual(exercise)}${anatomyInfo(exercise)}
-    ${!config ? exercisePlanLinks(exercise) : '<button class="exercise-back" type="button" data-action="edit-saved-exercise" data-exercise-id="' + escapeHTML(exercise.id) + '" data-index="-1">Voltar aos ajustes padrão</button>'}
+    <div class="exercise-detail-photo"><img src="${escapeHTML(exercise.photo)}" alt="Exemplo de ${escapeHTML(exercise.name)}" /></div>
     ${configurationControls(libraryConfigDraft, 'change-library-config')}
     <p class="form-hint">${config ? 'Os ajustes valem para este exercício neste treino.' : 'Os ajustes serão usados quando você adicionar este exercício a um novo treino.'}</p>
     ${custom ? `
@@ -424,7 +413,7 @@ function openSavedExerciseEditor(planId, index, exerciseId = '') {
       <div class="form-group"><label for="edit-custom-description">Descrição</label><textarea id="edit-custom-description" maxlength="300">${escapeHTML(exercise.description)}</textarea></div>
       <div class="form-group"><label for="edit-custom-how-to">Como executar</label><textarea id="edit-custom-how-to" maxlength="400">${escapeHTML(exercise.howTo)}</textarea></div>
       <div class="form-group"><label>Grupos musculares</label>${groupOptions}</div>
-    ` : ''}
+    ` : `<div class="detail-copy"><strong>Grupos musculares</strong>${groupOptions}</div><div class="detail-copy"><strong>Descrição</strong><p>${escapeHTML(exercise.description)}</p></div><p class="form-hint">Nome, foto, descrição e grupos pertencem ao catálogo padrão e não podem ser alterados.</p>`}
     <button class="modal-cta" style="margin-top:20px" data-action="save-saved-exercise" data-plan-id="${plan?.id || ''}" data-index="${index}" data-exercise-id="${exercise.id}">Salvar alterações</button>`);
 }
 
@@ -472,7 +461,7 @@ function openPlanForm(planId = '', draft = null) {
   const selectedIds = activeDraft?.selectedIds || plan?.exercises.map(config => config.exerciseId) || [];
   const selectedOrder = new Map(selectedIds.map((id, index) => [id, index + 1]));
   const exerciseSections = state.muscleGroups.map(group => {
-    const exercises = state.exercises.filter(exercise => (preferredExercise(exercise) || selectedIds.includes(exercise.id)) && getExerciseGroupIds(exercise).includes(group.id));
+    const exercises = state.exercises.filter(exercise => getExerciseGroupIds(exercise).includes(group.id));
     if (!exercises.length) return '';
     return `<section class="exercise-group"><div class="exercise-group-heading"><strong>${escapeHTML(group.name)}</strong><span>${exercises.length} ${exercises.length === 1 ? 'exercício' : 'exercícios'}</span></div><div class="exercise-picker">${exercises.map(exercise => { const order = selectedOrder.get(exercise.id); return `<button class="exercise-choice ${order ? 'selected' : ''}" data-action="toggle-plan-exercise" data-exercise-id="${exercise.id}" data-order="${order || ''}" aria-pressed="${Boolean(order)}"><i>${order ? String(order).padStart(2, '0') : ''}</i><span>${escapeHTML(exercise.name)}</span></button>`; }).join('')}</div></section>`;
   }).join('');
@@ -626,8 +615,11 @@ function openExerciseDetail(planId, index, preserveScroll = false) {
   openModal(`
     <h2 class="modal-title" id="modal-title">${escapeHTML(exercise.name)}</h2>
     <p class="modal-subtitle">${escapeHTML(plan.name)} · ajuste livremente antes do treino</p>
-    ${exerciseVisual(exercise)}${anatomyInfo(exercise)}
-    ${isCustomExercise(exercise.id) ? `<details class="exercise-extra"><summary>Suas orientações</summary><p>${escapeHTML(exercise.description)}</p><p>${escapeHTML(exercise.howTo)}</p></details>` : ''}
+    <div class="exercise-detail-photo"><img src="${escapeHTML(exercise.photo)}" alt="Exemplo de execução de ${escapeHTML(exercise.name)}" /></div>
+    <div class="detail-copy"><strong>Grupos musculares</strong><div class="muscle-pills">${getExerciseGroupNames(exercise).map(group => `<span>${escapeHTML(group)}</span>`).join('')}</div></div>
+    <div class="detail-copy"><strong>Músculos em foco</strong><p>${escapeHTML(exercise.muscles.join(' · '))}</p></div>
+    <div class="detail-copy"><strong>O que você treina</strong><p>${escapeHTML(exercise.description)}</p></div>
+    <div class="detail-copy"><strong>Como executar</strong><p>${escapeHTML(exercise.howTo)}</p></div>
     ${configurationControls(config, 'change-config', `data-plan-id="${plan.id}" data-index="${index}"`)}
     <button class="modal-cta" style="margin-top:18px" data-action="close-modal">Salvar ajustes</button>`, { preserveScroll });
 }
@@ -684,7 +676,7 @@ function openSession() {
   const sets = Array.from({ length: item.sets }, (_, index) => `<span class="${index < session.completedSets ? 'done' : ''}">${index + 1}</span>`).join('');
   openModal(`
     <div class="session-progress">${progress}</div>
-    ${exerciseVisual(exercise)}${anatomyInfo(exercise)}
+    <div class="session-photo"><img src="${escapeHTML(exercise.photo)}" alt="${escapeHTML(exercise.name)}" /><span><i data-lucide="info"></i> Exemplo de execução</span></div>
     <div class="session-info"><p class="micro-title">EXERCÍCIO ${session.exerciseIndex + 1} DE ${session.exercises.length}</p><h2 class="modal-title" id="modal-title">${escapeHTML(exercise.name)}</h2><p>${configSummary(item).replace('rep.', 'repetições').replace(' min', ' minutos').replace(' seg', ' segundos')}</p></div>
     <div class="set-indicators">${sets}</div>
     <div class="session-buttons"><button class="pause" data-action="pause-session"><i data-lucide="pause"></i> Pausar</button><button class="finish-set" data-action="complete-set">Concluir série</button></div>`);
@@ -840,18 +832,7 @@ async function setWeightUnit(unit) {
   if (await saveState()) showToast(`Unidade ${unit} salva na sua conta.`);
   else showToast('Unidade alterada nesta tela, mas ainda não salva. Use Tentar novamente.');
 }
-function openTrainingPreference() {
-  openModal(`<h2 class="modal-title" id="modal-title">Como você prefere treinar?</h2><p class="simple-copy">Filtre a biblioteca sem apagar seus exercícios pessoais, treinos ou progresso. Exercícios em treinos já salvos continuam visíveis.</p><div class="theme-options">${['musculacao','calistenia','ambas'].map(mode=>`<button class="theme-option ${state.trainingPreference === mode ? 'selected' : ''}" data-action="set-training-preference" data-preference="${mode}" aria-pressed="${state.trainingPreference===mode}"><i data-lucide="dumbbell"></i><span><strong>${modalityLabel(mode)}</strong><small>${mode==='musculacao'?'Barras, halteres e máquinas':mode==='calistenia'?'Peso corporal e barras de apoio':'Todas as modalidades'}</small></span><i data-lucide="${state.trainingPreference===mode?'check-circle-2':'circle'}"></i></button>`).join('')}</div><button class="modal-cta secondary" data-action="close-modal">Concluir</button>`);
-}
-async function setTrainingPreference(mode) {
-  if (!['musculacao','calistenia','ambas'].includes(mode)) return;
-  state.trainingPreference = mode;
-  renderAll(); openTrainingPreference();
-  if (await saveState()) showToast('Modalidade salva na sua conta.');
-  else showToast('Preferência ainda não salva. Use Tentar novamente.');
-}
 function openSimpleModal(type) {
-  if (type === 'training-preference') { openTrainingPreference(); return; }
   if (type === 'weight-unit') { openWeightUnit(); return; }
   if (type === 'edit-profile') { openAccount(); return; }
   if (type === 'terms') {
@@ -907,7 +888,6 @@ document.addEventListener('click', event => {
   else if (action === 'finish-celebration') { closeModal(); navigate('home'); showToast('Treino salvo. Até o próximo treino!'); }
   else if (action === 'set-theme') { applyTheme(target.dataset.theme); openAppearanceModal(); }
   else if (action === 'set-weight-unit') setWeightUnit(target.dataset.unit);
-  else if (action === 'set-training-preference') setTrainingPreference(target.dataset.preference);
   else if (action === 'toggle-switch') { target.classList.toggle('on'); showToast(target.classList.contains('on') ? 'Lembretes ativados.' : 'Lembretes desativados.'); }
   else if (action === 'close-modal') closeModal();
   else if (action === 'logout') logout();
