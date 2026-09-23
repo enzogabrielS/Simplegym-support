@@ -33,7 +33,6 @@ CREATE TABLE IF NOT EXISTS perfis_usuario (
     treinos_concluidos INT UNSIGNED NOT NULL DEFAULT 0,
     minutos_atividade DOUBLE NOT NULL DEFAULT 0,
     tema ENUM('dark','light','violet') NOT NULL DEFAULT 'dark',
-    unidade_carga ENUM('kg','lb') NOT NULL DEFAULT 'kg',
     atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
