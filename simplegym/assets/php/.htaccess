@@ -1,0 +1,3 @@
+<FilesMatch "^(config(\.local)?|conexao|funcoes|dados-iniciais|validar-dados|catalogo|repositorio)\.php$">
+    Require all denied
+</FilesMatch>

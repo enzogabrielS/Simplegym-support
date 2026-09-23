@@ -1,0 +1,25 @@
+.account-panel { padding-top: 8px; }
+.account-heading { display: flex; align-items: center; gap: 15px; padding-right: 26px; margin-bottom: 22px; }
+.account-heading .modal-title { margin: 4px 0 0; font-size: 24px; }
+.account-avatar { display: grid; place-items: center; flex: 0 0 54px; height: 54px; border-radius: 18px; background: var(--yellow); color: #191919; font-size: 25px; font-weight: 700; }
+.account-email { background: var(--ink); padding: 16px; border: 1px solid var(--line); border-radius: 14px; display: grid; gap: 5px; margin-bottom: 20px; overflow-wrap: anywhere; }
+.account-email span, .account-hint, .account-danger-zone span { color: var(--muted); font-size: 12px; line-height: 1.7; }
+.account-email strong { font-size: 14px; }
+.account-tabs { display: flex; padding: 5px; gap: 5px; border-radius: 12px; background: var(--ink); margin-bottom: 22px; }
+.account-tabs button { flex: 1; padding: 12px 6px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: inherit; font-size: 12px; }
+.account-tabs button[aria-pressed="true"] { background: var(--yellow); color: #191919; font-weight: 600; }
+.account-label { display: block; margin: 17px 0 8px; font-size: 13px; font-weight: 600; }
+.account-panel input { width: 100%; min-width: 0; min-height: 48px; padding: 13px; background: var(--ink); color: var(--white); border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 16px; }
+.account-panel input:focus-visible, .account-panel button:focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
+.account-password { display: flex; align-items: center; gap: 8px; }
+.account-password input { flex: 1; }
+.account-password button { min-height: 44px; border: 1px solid var(--line); background: var(--panel-2); color: var(--white); border-radius: 9px; padding: 10px; font: inherit; font-size: 11px; }
+.account-panel .modal-cta { margin-top: 22px; width: 100%; min-height: 48px; }
+.account-panel button:disabled { opacity: .6; cursor: wait; }
+.account-danger-zone { border-top: 1px solid var(--line); margin-top: 26px; padding-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; align-items: center; }
+.account-danger-zone button, .account-back { background: transparent; border: 0; color: var(--white); text-decoration: underline; font: inherit; font-size: 12px; padding: 10px 0; }
+.account-warning { border: 1px solid #c76655; border-radius: 12px; padding: 16px; font-size: 13px; line-height: 1.7; }
+.account-warning p { color: var(--muted); margin-bottom: 0; }
+.account-panel .account-delete { background: #b7332d; color: white; }
+.account-error { background: #b7332d; color: white; border-radius: 9px; padding: 12px; margin-top: 16px; font-size: 13px; }
+.account-back { display: block; margin: 12px auto 0; }
