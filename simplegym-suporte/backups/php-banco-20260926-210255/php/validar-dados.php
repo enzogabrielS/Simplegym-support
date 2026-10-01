@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/banco.php';
+require_once __DIR__ . '/catalogo.php';
 // Validação dos campos recebidos pelo JavaScript antes de gravar no MySQL.
 // Equivalente a array_is_list(), sem exigir PHP 8.1.
 function listaSequencial(array $itens): bool
@@ -58,7 +58,7 @@ function validarDados(array $dados): array
         ));
         validarCondicao(is_array($exercicio['muscleGroups'] ?? null) && listaSequencial($exercicio['muscleGroups']) && count($exercicio['muscleGroups']) > 0);
         foreach ($exercicio['muscleGroups'] as $grupo) validarCondicao(is_string($grupo) && in_array($grupo, $grupoIds, true));
-        validarCondicao(is_array($exercicio['muscles'] ?? null) && listaSequencial($exercicio['muscles']) && count($exercicio['muscles']) > 0 && count($exercicio['muscles']) <= 30);
+        validarCondicao(is_array($exercicio['muscles'] ?? null) && count($exercicio['muscles']) > 0 && count($exercicio['muscles']) <= 30);
         foreach ($exercicio['muscles'] as $musculo) validarCondicao(textoValido($musculo, 200));
         $exercicio['muscleGroups'] = array_values(array_unique($exercicio['muscleGroups']));
         $ids[] = $exercicio['id'];
@@ -71,9 +71,9 @@ function validarDados(array $dados): array
         validarCondicao(is_array($treino) && idValido($treino['id'] ?? null) && textoValido($treino['name'] ?? null, 180));
         validarCondicao(!in_array($treino['id'], $treinoIds, true));
         $treinoIds[] = $treino['id'];
-        validarCondicao(is_array($treino['groups'] ?? null) && listaSequencial($treino['groups']) && count($treino['groups']) > 0 && count($treino['groups']) <= 30);
+        validarCondicao(is_array($treino['groups'] ?? null) && count($treino['groups']) > 0 && count($treino['groups']) <= 30);
         foreach ($treino['groups'] as $grupo) validarCondicao(textoValido($grupo, 260));
-        validarCondicao(is_array($treino['exercises'] ?? null) && listaSequencial($treino['exercises']) && count($treino['exercises']) > 0 && count($treino['exercises']) <= 200);
+        validarCondicao(is_array($treino['exercises'] ?? null) && count($treino['exercises']) > 0 && count($treino['exercises']) <= 200);
         foreach ($treino['exercises'] as $config) { validarCondicao(is_array($config)); validarConfiguracao($config, $ids); }
     }
     $resultado['plans'] = $treinos;
@@ -124,11 +124,11 @@ function validarDados(array $dados): array
     }
     $sessao = $dados['session'] ?? null;
     if ($sessao !== null) {
-        validarCondicao(is_array($sessao) && is_array($sessao['exercises'] ?? null) && listaSequencial($sessao['exercises']) && count($sessao['exercises']) > 0 && count($sessao['exercises']) <= 400);
+        validarCondicao(is_array($sessao) && is_array($sessao['exercises'] ?? null) && count($sessao['exercises']) > 0 && count($sessao['exercises']) <= 400);
         foreach ($sessao['exercises'] as $config) { validarCondicao(is_array($config)); validarConfiguracao($config, $ids); }
         validarCondicao(numeroValido($sessao['exerciseIndex'] ?? null, 0, count($sessao['exercises']) - 1) && is_int($sessao['exerciseIndex']));
         validarCondicao(numeroValido($sessao['completedSets'] ?? null, 0, 100) && is_int($sessao['completedSets']));
-        validarCondicao(is_bool($sessao['paused'] ?? null) && is_array($sessao['planIds'] ?? null) && listaSequencial($sessao['planIds']) && count($sessao['planIds']) <= 100);
+        validarCondicao(is_bool($sessao['paused'] ?? null) && is_array($sessao['planIds'] ?? null));
         foreach ($sessao['planIds'] as $id) validarCondicao(idValido($id));
         validarCondicao(is_bool($sessao['rewardXp'] ?? true));
         foreach ($sessao['exercises'] as $config) {

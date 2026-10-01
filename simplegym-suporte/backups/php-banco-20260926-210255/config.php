@@ -4,7 +4,7 @@ $servidor = getenv('SIMPLEGYM_DB_HOST') ?: '127.0.0.1';
 $porta = getenv('SIMPLEGYM_DB_PORT') ?: '3306';
 $banco = getenv('SIMPLEGYM_DB_NAME') ?: 'simplegym';
 $usuario = getenv('SIMPLEGYM_DB_USER') ?: 'root';
-$senha = getenv('SIMPLEGYM_DB_PASSWORD') ?: '';
+$senha = getenv('SIMPLEGYM_DB_PASSWORD') ?: 'edeaf3a745d1ae8ce27f69492110f189aaa6d1ab6c11701c';
 
 if (is_file(__DIR__ . '/config.local.php')) {
     require __DIR__ . '/config.local.php';

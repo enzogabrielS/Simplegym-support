@@ -63,7 +63,7 @@ function usuarioAtual(): ?array
 {
     $conecta = conectarBanco();
     if (!empty($_SESSION['usuario_id'])) {
-        $consulta = $conecta->prepare('SELECT id, nome, email, foto_perfil, senha_hash FROM usuarios WHERE id = ?');
+        $consulta = $conecta->prepare('SELECT id, nome, email, senha_hash FROM usuarios WHERE id = ?');
         $consulta->execute([$_SESSION['usuario_id']]);
         $usuario = $consulta->fetch();
         if ($usuario && isset($_SESSION['credencial']) && hash_equals($_SESSION['credencial'], hash('sha256', $usuario['senha_hash']))) {
@@ -74,7 +74,7 @@ function usuarioAtual(): ?array
     }
     $cookie = $_COOKIE['simplegym_lembrar'] ?? '';
     if (!preg_match('/^([a-f0-9]{24}):([a-f0-9]{64})$/D', $cookie, $partes)) return null;
-    $consulta = $conecta->prepare('SELECT s.token_hash, u.id, u.nome, u.email, u.foto_perfil, u.senha_hash FROM sessoes_persistentes s JOIN usuarios u ON u.id = s.usuario_id WHERE s.seletor = ? AND s.expira_em > UTC_TIMESTAMP()');
+    $consulta = $conecta->prepare('SELECT s.token_hash, u.id, u.nome, u.email, u.senha_hash FROM sessoes_persistentes s JOIN usuarios u ON u.id = s.usuario_id WHERE s.seletor = ? AND s.expira_em > UTC_TIMESTAMP()');
     $consulta->execute([$partes[1]]);
     $usuario = $consulta->fetch();
     if (!$usuario || !hash_equals($usuario['token_hash'], hash('sha256', $partes[2]))) {

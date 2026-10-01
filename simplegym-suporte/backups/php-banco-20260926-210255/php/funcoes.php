@@ -6,7 +6,8 @@ if (is_file(__DIR__ . '/.maintenance')) {
     echo '{"message":"Atualização do banco em andamento. Tente novamente em instantes."}';
     exit;
 }
-require_once __DIR__ . '/banco.php';
+require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/dados-iniciais.php';
 
 ini_set('display_errors', '0');
 ini_set('session.use_strict_mode', '1');
@@ -37,15 +38,7 @@ function responder(array $dados, int $status = 200): void
 }
 set_exception_handler(function (Throwable $erro) {
     error_log('SimpleGym: ' . $erro->getMessage());
-    if ($erro instanceof PDOException) {
-        if (in_array((string) $erro->getCode(), ['42S02', '42S22'], true)) {
-            responder(['message' => 'O banco de dados precisa ser atualizado. Avise o responsável pelo aplicativo.'], 503);
-        }
-        if (in_array((int) ($erro->errorInfo[1] ?? 0), [1045, 1049, 2002, 2003, 2006], true)) {
-            responder(['message' => 'Não foi possível conectar ao banco de dados. Avise o responsável pelo aplicativo.'], 503);
-        }
-    }
-    responder(['message' => 'Não foi possível concluir a operação. Tente novamente; se persistir, avise o responsável pelo aplicativo.'], 500);
+    responder(['message' => 'Não foi possível acessar o serviço. Verifique se o banco de dados está ligado.'], 503);
 });
 function receberDados(): array
 {
@@ -63,7 +56,7 @@ function usuarioAtual(): ?array
 {
     $conecta = conectarBanco();
     if (!empty($_SESSION['usuario_id'])) {
-        $consulta = $conecta->prepare('SELECT id, nome, email, foto_perfil, senha_hash FROM usuarios WHERE id = ?');
+        $consulta = $conecta->prepare('SELECT id, nome, email, senha_hash FROM usuarios WHERE id = ?');
         $consulta->execute([$_SESSION['usuario_id']]);
         $usuario = $consulta->fetch();
         if ($usuario && isset($_SESSION['credencial']) && hash_equals($_SESSION['credencial'], hash('sha256', $usuario['senha_hash']))) {
@@ -74,7 +67,7 @@ function usuarioAtual(): ?array
     }
     $cookie = $_COOKIE['simplegym_lembrar'] ?? '';
     if (!preg_match('/^([a-f0-9]{24}):([a-f0-9]{64})$/D', $cookie, $partes)) return null;
-    $consulta = $conecta->prepare('SELECT s.token_hash, u.id, u.nome, u.email, u.foto_perfil, u.senha_hash FROM sessoes_persistentes s JOIN usuarios u ON u.id = s.usuario_id WHERE s.seletor = ? AND s.expira_em > UTC_TIMESTAMP()');
+    $consulta = $conecta->prepare('SELECT s.token_hash, u.id, u.nome, u.email, u.senha_hash FROM sessoes_persistentes s JOIN usuarios u ON u.id = s.usuario_id WHERE s.seletor = ? AND s.expira_em > UTC_TIMESTAMP()');
     $consulta->execute([$partes[1]]);
     $usuario = $consulta->fetch();
     if (!$usuario || !hash_equals($usuario['token_hash'], hash('sha256', $partes[2]))) {

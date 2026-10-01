@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS exercicio_anatomia (
  musculo VARCHAR(200) NOT NULL,
  PRIMARY KEY (exercicio_id,papel,ordem),
  FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS exercicio_instrucoes (
  exercicio_id BIGINT UNSIGNED NOT NULL,
  ordem INT UNSIGNED NOT NULL,
  instrucao TEXT NOT NULL,
  PRIMARY KEY (exercicio_id,ordem),
  FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

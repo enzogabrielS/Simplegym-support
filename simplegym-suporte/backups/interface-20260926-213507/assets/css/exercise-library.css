@@ -44,8 +44,8 @@
 .exercise-facts span { display:grid; gap:4px; }
 .exercise-facts small { font-size:10px; color:var(--muted); }
 .exercise-facts strong { font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
-
-
+.exercise-video { display:flex; justify-content:center; align-items:center; gap:10px; border:1px solid var(--yellow); border-radius:12px; color:var(--yellow); padding:13px; font-size:13px; text-decoration:none; margin:16px 0; }
+.exercise-video svg { width:18px; }
 .exercise-steps h3 { margin:22px 0 12px; font-size:16px; }
 .exercise-steps ol { padding:0; list-style:none; counter-reset:step; display:grid; gap:12px; }
 .exercise-steps li { counter-increment:step; display:flex; align-items:flex-start; gap:12px; color:var(--muted); font-size:12px; line-height:1.7; }

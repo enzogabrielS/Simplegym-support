@@ -3,25 +3,8 @@ require __DIR__ . '/funcoes.php';
 $usuario = exigirUsuario();
 $dados = receberDados();
 $acao = $dados['action'] ?? '';
-if (!in_array($acao, ['name', 'password', 'delete', 'photo'], true)) responder(['message' => 'Operação inválida.'], 422);
+if (!in_array($acao, ['name', 'password', 'delete'], true)) responder(['message' => 'Operação inválida.'], 422);
 $conecta = conectarBanco();
-if ($acao === 'photo') {
-    if (!array_key_exists('photo', $dados)) responder(['message' => 'Selecione uma foto ou escolha remover.'], 422);
-    $foto = $dados['photo'];
-    if ($foto !== null) {
-        if (!is_string($foto) || strlen($foto) > 350000 || !preg_match('~^data:image/jpeg;base64,([A-Za-z0-9+/=]+)$~D', $foto, $partes)) {
-            responder(['message' => 'Imagem inválida. Escolha a foto novamente.'], 422);
-        }
-        $bytes = base64_decode($partes[1], true);
-        $imagem = $bytes !== false ? @getimagesizefromstring($bytes) : false;
-        if (!$imagem || $imagem['mime'] !== 'image/jpeg' || $imagem[0] > 512 || $imagem[1] > 512 || strlen($bytes) > 262144) {
-            responder(['message' => 'Imagem inválida ou muito grande. Escolha a foto novamente.'], 422);
-        }
-    }
-    atualizarFotoPerfil((int) $usuario['id'], $foto);
-    $usuario['foto_perfil'] = $foto;
-    responder(['message' => $foto === null ? 'Foto removida.' : 'Foto salva.', 'user' => $usuario]);
-}
 if ($acao === 'name') {
     $nome = is_string($dados['name'] ?? null) ? trim($dados['name']) : '';
     if (strlen($nome) < 2 || strlen($nome) > 80 || preg_match('/[\x00-\x1F\x7F]/', $nome)) responder(['message' => 'Informe um nome entre 2 e 80 bytes, sem caracteres de controle.'], 422);

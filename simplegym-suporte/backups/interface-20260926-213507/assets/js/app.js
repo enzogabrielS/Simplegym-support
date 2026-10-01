@@ -57,7 +57,6 @@ const toast = document.getElementById('toast');
 let toastTimer;
 let lastModalTrigger = null;
 let libraryConfigDraft = null;
-let profilePhotoDraft = null;
 let dataVersion = 0;
 let ready = false;
 let saveQueue = Promise.resolve(true);
@@ -131,9 +130,11 @@ function exerciseVisual(exercise) {
 }
 function anatomyInfo(exercise) {
   const level = exerciseLevel(exercise);
+  let video = '';
+  try { const url = new URL(exercise.videoUrl); if (url.protocol === 'https:') video = `<a class="exercise-video" href="${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer"><i data-lucide="play"></i> Ver demonstração <i data-lucide="external-link"></i></a>`; } catch {}
   const steps = !isCustomExercise(exercise.id) ? exerciseGuidance[exercise.id] : null;
   const secondary = [...new Set([...(exercise.primaryMuscles || []).slice(1), ...(exercise.secondaryMuscles || [])])].filter(m=>m!==exerciseFocus(exercise));
-  return `<section class="exercise-facts"><div><i data-lucide="target"></i><span><small>Foco principal</small><strong>${escapeHTML(exerciseFocus(exercise))}</strong></span></div><div><i data-lucide="dumbbell"></i><span><small>Equipamento</small><strong>${escapeHTML(exerciseEquipment(exercise))}</strong></span></div>${level ? `<div><i data-lucide="signal"></i><span><small>Dificuldade</small><strong>${escapeHTML(level)}</strong></span></div>` : ''}</section>${steps ? `<section class="exercise-steps"><h3>Como fazer</h3><ol>${steps.map(step=>`<li>${escapeHTML(step)}</li>`).join('')}</ol></section>` : ''}${secondary.length ? `<details class="exercise-extra"><summary>Também trabalha</summary><p>${escapeHTML(secondary.join(' · '))}</p></details>` : ''}`;
+  return `<section class="exercise-facts"><div><i data-lucide="target"></i><span><small>Foco principal</small><strong>${escapeHTML(exerciseFocus(exercise))}</strong></span></div><div><i data-lucide="dumbbell"></i><span><small>Equipamento</small><strong>${escapeHTML(exerciseEquipment(exercise))}</strong></span></div>${level ? `<div><i data-lucide="signal"></i><span><small>Dificuldade</small><strong>${escapeHTML(level)}</strong></span></div>` : ''}</section>${video}${steps ? `<section class="exercise-steps"><h3>Como fazer</h3><ol>${steps.map(step=>`<li>${escapeHTML(step)}</li>`).join('')}</ol></section>` : ''}${secondary.length ? `<details class="exercise-extra"><summary>Também trabalha</summary><p>${escapeHTML(secondary.join(' · '))}</p></details>` : ''}`;
 }
 document.addEventListener('error', event => {
   const img = event.target;
@@ -203,7 +204,7 @@ function syncStreak() {
   if (Object.keys(state.completedDates).length) state.streak = calculateCurrentStreak();
 }
 function themeLabel(theme) {
-  return ({ dark: 'Tema escuro', light: 'Tema claro', violet: 'Tema suave' })[theme] || 'Tema escuro';
+  return ({ dark: 'Tema escuro', light: 'Tema claro', violet: 'Tema violeta' })[theme] || 'Tema escuro';
 }
 function plansForDay(dayKey) { return (state.schedule[dayKey] || []).map(getPlan).filter(Boolean); }
 function exercisesForPlans(plans) {
@@ -272,11 +273,11 @@ function openModal(markup, options = {}) {
   modalBackdrop.setAttribute('aria-hidden', 'false');
   modal.scrollTop = options.preserveScroll ? previousScroll : 0;
   refreshIcons();
-  if (!wasOpen) requestAnimationFrame(() => modalBackdrop.querySelector('.modal-close')?.focus({ preventScroll: true }));
+  if (!wasOpen) requestAnimationFrame(() => modalBackdrop.querySelector('.modal-close')?.focus());
 }
 function closeModal() {
   // Mova o foco para fora do modal antes de escondê-lo dos leitores de tela.
-  if (lastModalTrigger && document.contains(lastModalTrigger)) lastModalTrigger.focus({ preventScroll: true });
+  if (lastModalTrigger && document.contains(lastModalTrigger)) lastModalTrigger.focus();
   modalBackdrop.classList.remove('open');
   modalBackdrop.setAttribute('aria-hidden', 'true');
   lastModalTrigger = null;
@@ -333,8 +334,8 @@ function renderProfile() {
   const name = state.user?.nome || 'Meu perfil';
   const initials = name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
   document.querySelector('.profile-hero h2').textContent = name;
-  document.querySelector('.profile-avatar').innerHTML = avatarMarkup();
-  document.querySelector('.avatar-button').innerHTML = avatarMarkup();
+  document.querySelector('.profile-avatar').textContent = initials;
+  document.querySelector('.avatar-button').textContent = initials;
   const level = getLevelForXp(state.xp);
   const nextLevel = getNextLevel(level);
   const progress = nextLevel
@@ -408,23 +409,23 @@ function openSavedExerciseEditor(planId, index, exerciseId = '') {
   libraryConfigDraft = clone(config || defaultExerciseConfig(exercise.id));
   const custom = isCustomExercise(exercise.id);
   const groupOptions = custom ? `<div class="custom-group-picker">${state.muscleGroups.map(group => `<label><input type="checkbox" data-edit-custom-group value="${group.id}" ${getExerciseGroupIds(exercise).includes(group.id) ? 'checked' : ''} /><span>${escapeHTML(group.name)}</span></label>`).join('')}</div>` : `<div class="muscle-pills">${getExerciseGroupNames(exercise).map(group => `<span>${escapeHTML(group)}</span>`).join('')}</div>`;
-  openModal(`<section class="${custom ? 'builder-panel' : 'exercise-editor'}">
+  openModal(`
     <h2 class="modal-title" id="modal-title">${custom ? 'Editar exercício' : escapeHTML(exercise.name)}</h2>
     <p class="modal-subtitle">${plan ? `${escapeHTML(plan.name)} · ` : ''}Ajuste séries, repetições e carga.</p>
-    ${custom ? '' : exerciseVisual(exercise) + anatomyInfo(exercise)}
+    ${exerciseVisual(exercise)}${anatomyInfo(exercise)}
     ${!config ? exercisePlanLinks(exercise) : '<button class="exercise-back" type="button" data-action="edit-saved-exercise" data-exercise-id="' + escapeHTML(exercise.id) + '" data-index="-1">Voltar aos ajustes padrão</button>'}
     ${configurationControls(libraryConfigDraft, 'change-library-config')}
     <p class="form-hint">${config ? 'Os ajustes valem para este exercício neste treino.' : 'Os ajustes serão usados quando você adicionar este exercício a um novo treino.'}</p>
     ${custom ? `
-      <section class="builder-section"><h3>Informações do exercício</h3><div class="form-group"><label for="edit-custom-name">Nome</label><input id="edit-custom-name" value="${escapeHTML(exercise.name)}" maxlength="55" /></div>
+      <div class="form-group"><label for="edit-custom-name">Nome</label><input id="edit-custom-name" value="${escapeHTML(exercise.name)}" maxlength="55" /></div>
       <div class="form-group"><label for="edit-custom-photo-url">Link da foto</label><input id="edit-custom-photo-url" type="url" inputmode="url" value="${exercise.photo.startsWith('data:') ? '' : escapeHTML(exercise.photo)}" placeholder="Mantenha em branco para usar a foto atual" /></div>
       <div class="form-group"><label for="edit-custom-photo-file">Nova foto do dispositivo</label><input id="edit-custom-photo-file" class="file-input" type="file" accept="image/*" /></div>
       <div class="form-group"><label for="edit-custom-muscles">Músculos em foco</label><input id="edit-custom-muscles" value="${escapeHTML(exercise.muscles.join(', '))}" maxlength="100" /></div>
       <div class="form-group"><label for="edit-custom-description">Descrição</label><textarea id="edit-custom-description" maxlength="300">${escapeHTML(exercise.description)}</textarea></div>
       <div class="form-group"><label for="edit-custom-how-to">Como executar</label><textarea id="edit-custom-how-to" maxlength="400">${escapeHTML(exercise.howTo)}</textarea></div>
-      <div class="form-group"><label>Grupos musculares</label>${groupOptions}</div></section>
+      <div class="form-group"><label>Grupos musculares</label>${groupOptions}</div>
     ` : ''}
-    <button class="modal-cta" style="margin-top:20px" data-action="save-saved-exercise" data-plan-id="${plan?.id || ''}" data-index="${index}" data-exercise-id="${exercise.id}">Salvar alterações</button></section>`);
+    <button class="modal-cta" style="margin-top:20px" data-action="save-saved-exercise" data-plan-id="${plan?.id || ''}" data-index="${index}" data-exercise-id="${exercise.id}">Salvar alterações</button>`);
 }
 
 async function saveSavedExerciseEditor(planId, index, exerciseId = '') {
@@ -470,21 +471,18 @@ function openPlanForm(planId = '', draft = null) {
   const activeDraft = draft || state.planDraft;
   const selectedIds = activeDraft?.selectedIds || plan?.exercises.map(config => config.exerciseId) || [];
   const selectedOrder = new Map(selectedIds.map((id, index) => [id, index + 1]));
-  const sections = state.muscleGroups.map(group => {
+  const exerciseSections = state.muscleGroups.map(group => {
     const exercises = state.exercises.filter(exercise => (preferredExercise(exercise) || selectedIds.includes(exercise.id)) && getExerciseGroupIds(exercise).includes(group.id));
     if (!exercises.length) return '';
-    return `<details class="builder-group"><summary><span>${escapeHTML(group.name)}</span><small>${exercises.length}</small></summary><div class="exercise-picker">${exercises.map(exercise => {
-      const order = selectedOrder.get(exercise.id);
-      return `<button type="button" class="exercise-choice ${order ? 'selected' : ''}" data-action="toggle-plan-exercise" data-exercise-id="${exercise.id}" data-order="${order || ''}" aria-pressed="${Boolean(order)}"><i>${order ? String(order).padStart(2, '0') : ''}</i><span>${escapeHTML(exercise.name)}</span></button>`;
-    }).join('')}</div></details>`;
+    return `<section class="exercise-group"><div class="exercise-group-heading"><strong>${escapeHTML(group.name)}</strong><span>${exercises.length} ${exercises.length === 1 ? 'exercício' : 'exercícios'}</span></div><div class="exercise-picker">${exercises.map(exercise => { const order = selectedOrder.get(exercise.id); return `<button class="exercise-choice ${order ? 'selected' : ''}" data-action="toggle-plan-exercise" data-exercise-id="${exercise.id}" data-order="${order || ''}" aria-pressed="${Boolean(order)}"><i>${order ? String(order).padStart(2, '0') : ''}</i><span>${escapeHTML(exercise.name)}</span></button>`; }).join('')}</div></section>`;
   }).join('');
-  openModal(`<section class="builder-panel">
-    <header class="panel-heading"><h2 class="modal-title" id="modal-title">${plan ? 'Editar treino' : 'Novo treino'}</h2><p>Uma rotina do seu jeito.</p></header>
-    <div class="form-group"><label for="plan-name">Nome do treino</label><input id="plan-name" value="${escapeHTML(activeDraft?.name ?? plan?.name ?? '')}" placeholder="Ex.: Treino de superiores" maxlength="40" /></div>
-    <div class="form-group"><label for="plan-groups">Grupos musculares</label><input id="plan-groups" value="${escapeHTML(activeDraft?.groups ?? plan?.groups.join(', ') ?? '')}" placeholder="Ex.: Peito, tríceps" maxlength="65" /></div>
-    <section class="builder-section"><div class="builder-section-title"><h3>Escolha os exercícios</h3><span id="selection-count" role="status">${selectedIds.length} selecionados</span></div><p class="form-hint">A ordem dos toques define a ordem do treino.</p><div class="builder-groups">${sections}</div>
-    <button type="button" class="builder-link" data-action="open-custom-exercise" data-plan-id="${plan?.id || ''}" data-return="plan"><i data-lucide="plus"></i> Criar meu exercício</button></section>
-    <footer class="builder-footer"><button class="modal-cta" data-action="save-plan" data-plan-id="${plan?.id || ''}">${plan ? 'Salvar alterações' : 'Salvar treino'}</button></footer></section>`);
+  openModal(`
+    <h2 class="modal-title" id="modal-title">${plan ? 'Editar treino' : 'Novo treino'}</h2>
+    <p class="modal-subtitle">${plan ? 'Atualize a estrutura do seu treino salvo.' : 'Escolha os exercícios e salve para usar quando quiser.'}</p>
+    <div class="form-group"><label for="plan-name">Nome do treino</label><input id="plan-name" value="${escapeHTML(activeDraft?.name ?? plan?.name ?? '')}" placeholder="Ex.: Peito e tríceps" maxlength="40" /></div>
+    <div class="form-group"><label for="plan-groups">Grupos musculares</label><input id="plan-groups" value="${escapeHTML(activeDraft?.groups ?? plan?.groups.join(', ') ?? '')}" placeholder="Ex.: Peito, tríceps" maxlength="65" /><p class="form-hint">Separe mais de um grupo por vírgula.</p></div>
+    <div class="form-group"><div class="exercise-form-heading"><label>Exercícios</label><button class="add-exercise-button" data-action="open-custom-exercise" data-plan-id="${plan?.id || ''}" data-return="plan"><i data-lucide="plus"></i> Novo exercício</button></div><p class="form-hint">Toque nos itens na ordem em que deseja executá-los.</p><div class="exercise-groups">${exerciseSections}</div></div>
+    <button class="modal-cta" style="margin-top:20px" data-action="save-plan" data-plan-id="${plan?.id || ''}">${plan ? 'Salvar alterações' : 'Salvar treino'}</button>`);
   modalContent.dataset.selectedExerciseIds = selectedIds.join(',');
   state.planDraft = null;
 }
@@ -512,7 +510,6 @@ function togglePlanExercise(choice) {
   if (selectedIndex >= 0) selectedIds.splice(selectedIndex, 1);
   else selectedIds.push(exerciseId);
   modalContent.dataset.selectedExerciseIds = selectedIds.join(',');
-  document.getElementById('selection-count').textContent = `${selectedIds.length} selecionados`;
 
   document.querySelectorAll('.exercise-choice').forEach(item => {
     const order = selectedIds.indexOf(item.dataset.exerciseId) + 1;
@@ -535,19 +532,20 @@ function openCustomExerciseForm(planId = '', returnTo = 'plan') {
   if (returnTo === 'plan') capturePlanDraft(planId);
   else state.planDraft = null;
   state.customExerciseReturn = returnTo;
-  openModal(`<section class="builder-panel">
-    <header class="panel-heading"><h2 class="modal-title" id="modal-title">Novo exercício</h2><p>Salvo só na sua biblioteca.</p></header>
-    <div class="form-group"><label for="custom-exercise-name">Nome do exercício</label><input id="custom-exercise-name" placeholder="Ex.: Elevação lateral" maxlength="55" /></div>
+  openModal(`
+    <h2 class="modal-title" id="modal-title">Novo exercício</h2>
+    <p class="modal-subtitle">Ele ficará salvo na sua conta, na seção dos grupos escolhidos.</p>
+    <div class="form-group"><label for="custom-exercise-name">Nome</label><input id="custom-exercise-name" placeholder="Ex.: Elevação lateral" maxlength="55" /></div>
+    <div class="form-group"><label for="custom-photo-url">Link da foto</label><input id="custom-photo-url" type="url" inputmode="url" placeholder="https://exemplo.com/foto.jpg" /><p class="form-hint">Use um link de imagem ou envie uma foto abaixo.</p></div>
+    <div class="form-group"><label for="custom-photo-file">Foto do dispositivo</label><input id="custom-photo-file" class="file-input" type="file" accept="image/*" /></div>
+    <div class="form-group"><label for="custom-muscles">Músculos em foco</label><input id="custom-muscles" placeholder="Ex.: Deltoide lateral, trapézio" maxlength="100" /></div>
+    <div class="form-group"><label for="custom-description">Descrição</label><textarea id="custom-description" placeholder="Explique o objetivo do exercício." maxlength="300"></textarea></div>
+    <div class="form-group"><label for="custom-how-to">Como executar</label><textarea id="custom-how-to" placeholder="Descreva a execução com segurança." maxlength="400"></textarea></div>
     <div class="form-group"><label>Grupos musculares</label><div class="custom-group-picker">${state.muscleGroups.map(group => `<label><input type="checkbox" data-custom-group value="${group.id}" /><span>${escapeHTML(group.name)}</span></label>`).join('')}</div></div>
-    <section class="builder-section"><h3>Imagem do exercício</h3><div class="image-picker"><label for="custom-photo-file"><i data-lucide="image-plus"></i><span>Escolher do dispositivo</span><input id="custom-photo-file" type="file" accept="image/jpeg,image/png,image/webp" /></label><small id="custom-photo-label" role="status">JPG, PNG ou WebP · até 5 MB</small></div><details class="builder-extra"><summary>Usar um link de imagem</summary><div class="form-group"><label for="custom-photo-url">Link da foto</label><input id="custom-photo-url" type="url" inputmode="url" placeholder="https://…" /></div></details></section>
-    <section class="builder-section"><h3>Orientações</h3><div class="form-group"><label for="custom-description">Objetivo</label><textarea id="custom-description" placeholder="O que este exercício trabalha?" maxlength="300" rows="2"></textarea></div><div class="form-group"><label for="custom-how-to">Como executar</label><textarea id="custom-how-to" placeholder="Descreva o movimento em poucas etapas." maxlength="400" rows="3"></textarea></div>
-    <details class="builder-extra"><summary>Especificar músculos <small>Opcional</small></summary><div class="form-group"><label for="custom-muscles">Músculos em foco</label><input id="custom-muscles" placeholder="Ex.: Deltoide lateral, trapézio" maxlength="100" /><p class="form-hint">Se não preencher, usaremos os grupos selecionados.</p></div></details></section>
-    <footer class="builder-footer"><button class="modal-cta" data-action="save-custom-exercise">Salvar exercício</button></footer></section>`);
+    <button class="modal-cta" style="margin-top:20px" data-action="save-custom-exercise">Salvar exercício</button>`);
 }
-
 function readDeviceImage(file) {
   return new Promise((resolve, reject) => {
-    if (file?.size > 5 * 1024 * 1024) { reject(new Error('Escolha uma imagem de até 5 MB.')); return; }
     if (!file || !file.type.startsWith('image/')) { reject(new Error('Selecione uma imagem válida.')); return; }
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('Não foi possível ler a imagem.'));
@@ -572,11 +570,10 @@ async function saveCustomExercise() {
   const name = document.getElementById('custom-exercise-name').value.trim();
   const photoUrl = document.getElementById('custom-photo-url').value.trim();
   const photoFile = document.getElementById('custom-photo-file').files[0];
-  let muscles = document.getElementById('custom-muscles').value.split(',').map(muscle => muscle.trim()).filter(Boolean);
+  const muscles = document.getElementById('custom-muscles').value.split(',').map(muscle => muscle.trim()).filter(Boolean);
   const description = document.getElementById('custom-description').value.trim();
   const howTo = document.getElementById('custom-how-to').value.trim();
   const muscleGroups = [...document.querySelectorAll('[data-custom-group]:checked')].map(input => input.value);
-  if (!muscles.length) muscles = muscleGroups.map(id => getMuscleGroup(id)?.name).filter(Boolean);
   if (!name || !muscles.length || !description || !howTo || !muscleGroups.length || (!photoUrl && !photoFile)) {
     showToast('Preencha todos os campos e escolha uma foto.');
     return;
@@ -712,13 +709,7 @@ function completeSet() {
   checkpointActivity();
   const item = session.exercises[session.exerciseIndex];
   session.completedSets += 1;
-  if (session.completedSets < item.sets) {
-    saveState();
-    // Mantenha o DOM, a imagem, o foco e o scroll do exercício atual.
-    modalContent.querySelectorAll('.set-indicators span').forEach((indicator, index) => indicator.classList.toggle('done', index < session.completedSets));
-    showToast('Série registrada. Continue assim!');
-    return;
-  }
+  if (session.completedSets < item.sets) { saveState(); openSession(); showToast('Série registrada. Continue assim!'); return; }
   session.exerciseIndex += 1;
   session.completedSets = 0;
   if (session.exerciseIndex >= session.exercises.length) finishWorkout();
@@ -770,11 +761,11 @@ function applyTheme(theme, announce = true) {
 }
 function openAppearanceModal() {
   const themes = [
-    { id: 'dark', name: 'Preto', description: 'O visual original do SimpleGym.' },
-    { id: 'light', name: 'Claro', description: 'Tons neutros e detalhes em dourado.' },
-    { id: 'violet', name: 'Suave', description: 'Grafite com um toque de lavanda.' }
+    { id: 'dark', name: 'Escuro', description: 'Contraste confortável para treinar à noite.' },
+    { id: 'light', name: 'Claro', description: 'Visual leve e luminoso para o dia.' },
+    { id: 'violet', name: 'Violeta', description: 'Uma variação escura com toque roxo.' }
   ];
-  openModal(`<section class="preferences-panel"><header class="panel-heading"><h2 class="modal-title" id="modal-title">Aparência</h2><p>Escolha o visual mais confortável para você.</p></header><div class="appearance-options">${themes.map(theme => `<button class="appearance-choice" data-action="set-theme" data-theme="${theme.id}" aria-pressed="${state.theme === theme.id}"><span class="appearance-swatch ${theme.id}" aria-hidden="true"><i></i><span></span><span></span></span><span class="appearance-copy"><strong>${theme.name}</strong><small>${theme.description}</small></span><i data-lucide="${state.theme === theme.id ? 'check-circle-2' : 'circle'}"></i></button>`).join('')}</div><button class="modal-cta secondary" data-action="close-modal">Concluir</button></section>`);
+  openModal(`<div class="simple-icon"><i data-lucide="palette"></i></div><h2 class="modal-title" id="modal-title">Aparência</h2><p class="simple-copy">Escolha o tema que combina melhor com sua rotina. A preferência fica salva na sua conta.</p><div class="theme-options">${themes.map(theme => `<button class="theme-option ${state.theme === theme.id ? 'selected' : ''}" data-action="set-theme" data-theme="${theme.id}" aria-pressed="${state.theme === theme.id}"><span class="theme-preview ${theme.id}"><i></i><i></i></span><span><strong>${theme.name}</strong><small>${theme.description}</small></span><i data-lucide="${state.theme === theme.id ? 'check-circle-2' : 'circle'}"></i></button>`).join('')}</div><button class="modal-cta secondary" data-action="close-modal">Concluir</button>`);
 }
 
 function accountPassword(id, label, autocomplete) {
@@ -862,7 +853,6 @@ async function setTrainingPreference(mode) {
 function openSimpleModal(type) {
   if (type === 'training-preference') { openTrainingPreference(); return; }
   if (type === 'weight-unit') { openWeightUnit(); return; }
-  if (type === 'privacy') { openPrivacy(); return; }
   if (type === 'edit-profile') { openAccount(); return; }
   if (type === 'terms') {
     openModal(`<h2 class="modal-title" id="modal-title">Termo de responsabilidade</h2>${document.getElementById('responsibility-terms-template').innerHTML}<button class="modal-cta secondary" data-action="close-modal">Fechar</button>`);
@@ -885,9 +875,6 @@ document.addEventListener('click', event => {
   const action = target.dataset.action;
   if (action === 'select-day') { state.selectedDay = target.dataset.day; renderHome(); }
   else if (action === 'open-workouts') { navigate('workouts'); }
-  else if (action === 'profile-photo') openProfilePhoto();
-  else if (action === 'save-profile-photo') saveWithButton(target, saveProfilePhoto);
-  else if (action === 'remove-profile-photo') { profilePhotoDraft = null; document.getElementById('profile-photo-preview').innerHTML = avatarMarkup(null); target.hidden = true; }
   else if (action === 'open-profile') { navigate('profile'); }
   else if (action === 'open-schedule') { navigate('workouts'); selectTab('schedule'); }
   else if (action === 'create-plan') openPlanForm();
@@ -980,75 +967,3 @@ setInterval(() => {
 window.addEventListener('beforeunload', event => { if (needsSave) { event.preventDefault(); event.returnValue = ''; } });
 window.addEventListener('pageshow', event => { if (event.persisted) window.location.reload(); });
 initializeApp();
-
-function openPrivacy() {
-  openModal(`<section class="preferences-panel"><header class="panel-heading"><h2 class="modal-title" id="modal-title">Privacidade e dados</h2><p>Você no controle da sua conta.</p></header><h3 class="preferences-label">Minha conta</h3><div class="preference-rows"><button data-account-mode="name"><i data-lucide="user-round"></i><span><strong>Dados pessoais</strong><small>Nome e e-mail de acesso</small></span><i data-lucide="chevron-right"></i></button><button data-account-mode="password"><i data-lucide="lock-keyhole"></i><span><strong>Alterar senha</strong><small>Proteja o acesso à sua conta</small></span><i data-lucide="chevron-right"></i></button></div><h3 class="preferences-label">Seus dados</h3><p class="privacy-note">Seu perfil, treinos, exercícios pessoais e histórico ficam vinculados à sua conta.</p><div class="preference-rows"><button data-action="terms"><i data-lucide="file-text"></i><span><strong>Termo de responsabilidade</strong><small>Cuidados e condições de uso</small></span><i data-lucide="chevron-right"></i></button></div><div class="privacy-danger"><div><strong>Excluir conta</strong><p>Remove sua conta e os dados associados.</p></div><button data-account-mode="delete">Excluir minha conta</button></div></section>`);
-}
-
-function openProfilePhoto() {
-  profilePhotoDraft = state.user.foto_perfil || null;
-  openModal(`<section class="preferences-panel photo-panel"><header class="panel-heading"><h2 class="modal-title" id="modal-title">Foto de perfil</h2><p>Escolha como aparecer no aplicativo.</p></header><div class="photo-preview" id="profile-photo-preview">${avatarMarkup()}</div><div class="image-picker"><label for="profile-photo-file"><i data-lucide="upload"></i><span>${profilePhotoDraft ? 'Trocar foto' : 'Escolher foto'}</span><input id="profile-photo-file" type="file" accept="image/jpeg,image/png,image/webp" /></label><small>JPG, PNG ou WebP · até 5 MB</small></div><p id="photo-error" class="photo-error" role="alert"></p><button class="photo-remove" data-action="remove-profile-photo" ${profilePhotoDraft ? '' : 'hidden'}>Remover foto</button><button class="modal-cta" data-action="save-profile-photo">Salvar foto</button></section>`);
-}
-
-function avatarMarkup(photo = state.user?.foto_perfil) {
-  const initials = (state.user?.nome || 'SG').trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
-  return photo ? `<img src="${escapeHTML(photo)}" alt="" />` : escapeHTML(initials);
-}
-
-async function saveProfilePhoto() {
-  try {
-    const response = await SimpleGymAPI.request('conta.php', { action: 'photo', photo: profilePhotoDraft });
-    state.user = response.user;
-    renderProfile();
-    closeModal();
-    showToast(profilePhotoDraft ? 'Foto de perfil salva.' : 'Foto removida.');
-  } catch (error) {
-    const message = document.getElementById('photo-error');
-    if (message) message.textContent = error.message || 'Não foi possível salvar a foto. Tente novamente.';
-  }
-}
-
-function prepareProfileImage(file) {
-  return new Promise((resolve, reject) => {
-    if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return reject(new Error('Escolha uma imagem JPG, PNG ou WebP.'));
-    if (file.size > 5 * 1024 * 1024) return reject(new Error('Escolha uma imagem de até 5 MB.'));
-    const image = new Image();
-    const url = URL.createObjectURL(file);
-    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Não foi possível abrir essa imagem.')); };
-    image.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 384;
-        const side = Math.min(image.width, image.height);
-        const context = canvas.getContext('2d');
-        context.fillStyle = '#ffffff';
-        context.fillRect(0, 0, 384, 384);
-        context.drawImage(image, (image.width-side)/2, (image.height-side)/2, side, side, 0, 0, 384, 384);
-        resolve(canvas.toDataURL('image/jpeg', .85));
-      } catch { reject(new Error('Não foi possível preparar essa imagem.')); }
-      finally { URL.revokeObjectURL(url); }
-    };
-    image.src = url;
-  });
-}
-
-document.addEventListener('change', async event => {
-  if (event.target.id === 'custom-photo-file') {
-    document.getElementById('custom-photo-label').textContent = event.target.files[0]?.name || 'JPG, PNG ou WebP · até 5 MB';
-  }
-  if (event.target.id !== 'profile-photo-file' || !event.target.files[0]) return;
-  const input = event.target;
-  const save = modalContent.querySelector('[data-action="save-profile-photo"]');
-  const remove = modalContent.querySelector('[data-action="remove-profile-photo"]');
-  save.disabled = true; input.disabled = true; remove.disabled = true;
-  document.getElementById('photo-error').textContent = '';
-  try {
-    const photo = await prepareProfileImage(input.files[0]);
-    if (!input.isConnected) return;
-    profilePhotoDraft = photo;
-    document.getElementById('profile-photo-preview').innerHTML = avatarMarkup(photo);
-    remove.hidden = false;
-  } catch (error) {
-    if (input.isConnected) document.getElementById('photo-error').textContent = error.message;
-  } finally { save.disabled = false; input.disabled = false; remove.disabled = false; input.value = ''; }
-});

@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="assets/css/exercise-library.css?v=20260923-ux" />
     <link rel="stylesheet" href="assets/css/conta.css?v=20260917" />
     <link rel="stylesheet" href="assets/css/termos.css" />
-    <link rel="stylesheet" href="assets/css/experience.css?v=20260927" />
   </head>
   <body class="app-loading">
     <div class="app-load-status" id="app-load-status" role="status"><p>Carregando sua conta…</p><button data-action="reload-app" hidden>Tentar novamente</button></div>
@@ -96,12 +95,10 @@
 
         <section class="page" id="perfil" data-page="profile">
           <div class="page-heading"><p class="micro-title">MINHA CONTA</p><h1>Perfil</h1></div>
-          <article class="profile-hero"><button class="profile-avatar" data-action="profile-photo" aria-label="Adicionar ou alterar foto de perfil">SG</button><div><h2>Meu perfil</h2><p id="profile-level">Nível 1 · Primeiro passo</p><div class="level-bar"><i id="profile-level-progress"></i></div><small><span id="profile-xp">0</span> / <span id="profile-next-xp">120</span> <span id="profile-xp-copy">XP para o nível 2</span></small><em id="profile-level-description">Comece no seu ritmo.</em></div><button class="square-icon" data-action="edit-profile" aria-label="Ver perfil"><i data-lucide="user-round"></i></button></article>
-          <button class="profile-photo-link" data-action="profile-photo">Adicionar ou alterar foto</button>
+          <article class="profile-hero"><span class="profile-avatar">SG</span><div><h2>Meu perfil</h2><p id="profile-level">Nível 1 · Primeiro passo</p><div class="level-bar"><i id="profile-level-progress"></i></div><small><span id="profile-xp">0</span> / <span id="profile-next-xp">120</span> <span id="profile-xp-copy">XP para o nível 2</span></small><em id="profile-level-description">Comece no seu ritmo.</em></div><button class="square-icon" data-action="edit-profile" aria-label="Ver perfil"><i data-lucide="user-round"></i></button></article>
           <div class="profile-stats"><article><strong id="profile-workouts">0</strong><span>treinos</span></article><article><strong id="profile-streak">0</strong><span>dias seguidos</span></article><article><strong id="profile-activity">0min</strong><span>em atividade</span></article></div>
           <section class="settings-block"><p class="micro-title">PREFERÊNCIAS</p><div class="setting-list"><button data-action="training-preference"><span class="setting-icon yellow"><i data-lucide="dumbbell"></i></span><span><strong>Modalidade de treino</strong><small id="training-current">Ambas</small></span><i data-lucide="chevron-right"></i></button><button data-action="weight-unit"><span class="setting-icon yellow"><i data-lucide="scale"></i></span><span><strong>Unidade de carga</strong><small id="weight-unit-current">Quilogramas (kg)</small></span><i data-lucide="chevron-right"></i></button><button data-action="appearance"><span class="setting-icon blue"><i data-lucide="palette"></i></span><span><strong>Aparência</strong><small id="appearance-current">Tema escuro</small></span><i data-lucide="chevron-right"></i></button></div></section>
           <section class="settings-block"><p class="micro-title">CONFIGURAÇÕES</p><div class="setting-list"><button data-action="privacy"><span class="setting-icon gray"><i data-lucide="shield-check"></i></span><span><strong>Privacidade e dados</strong><small>Gerencie suas informações</small></span><i data-lucide="chevron-right"></i></button><button data-action="terms"><span class="setting-icon gray"><i data-lucide="file-text"></i></span><span><strong>Termo de responsabilidade</strong><small>Riscos, cuidados e condições de uso</small></span><i data-lucide="chevron-right"></i></button></div></section>
-          <section class="profile-sources"><details><summary><i data-lucide="book-open"></i> Fontes das orientações</summary><p>O catálogo e os diagramas musculares são baseados no Anatome. As orientações foram adaptadas para português e resumidas para facilitar a consulta.</p><p>Exercícios pessoais são descritos por quem os criou. As orientações não substituem o acompanhamento de um profissional.</p></details></section>
           <button class="logout" data-action="logout"><i data-lucide="log-out"></i> Sair da conta</button>
         </section>
 
@@ -125,6 +122,6 @@
     <template id="responsibility-terms-template"><?php require __DIR__ . '/termos-conteudo.php'; ?></template>
     <script src="assets/js/api.js"></script>
     <script src="assets/js/exercise-library.js?v=20260923-ux"></script>
-    <script src="assets/js/app.js?v=20260927"></script>
+    <script src="assets/js/app.js?v=20260923-ux"></script>
   </body>
 </html>

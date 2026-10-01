@@ -10,21 +10,21 @@ CREATE TABLE IF NOT EXISTS perfis_usuario (
     preferencia_treino ENUM('musculacao','calistenia','ambas') NOT NULL DEFAULT 'ambas',
     atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS grupos_musculares (
     id VARCHAR(100) PRIMARY KEY,
     nome VARCHAR(180) NOT NULL,
     descricao TEXT NOT NULL,
     ordem INT UNSIGNED NOT NULL DEFAULT 0
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS niveis (
     nivel INT UNSIGNED PRIMARY KEY,
     xp_minimo INT UNSIGNED NOT NULL UNIQUE,
     titulo VARCHAR(180) NOT NULL,
     descricao TEXT NOT NULL
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- usuario_id NULL = exercício do aplicativo. Preenchido = exercício pessoal.
 CREATE TABLE IF NOT EXISTS exercicios (
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS exercicios (
     dono INT UNSIGNED GENERATED ALWAYS AS (IFNULL(usuario_id, 0)) STORED,
     UNIQUE KEY exercicio_por_dono (dono, codigo),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exercicio_grupos (
     exercicio_id BIGINT UNSIGNED NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS exercicio_grupos (
     PRIMARY KEY (exercicio_id, grupo_id),
     FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE,
     FOREIGN KEY (grupo_id) REFERENCES grupos_musculares(id)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exercicio_musculos (
     exercicio_id BIGINT UNSIGNED NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS exercicio_musculos (
     nome VARCHAR(200) NOT NULL,
     PRIMARY KEY (exercicio_id, ordem),
     FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS treinos (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS treinos (
     ordem INT UNSIGNED NOT NULL,
     UNIQUE KEY treino_por_usuario (usuario_id, codigo),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS treino_grupos (
     treino_id BIGINT UNSIGNED NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS treino_grupos (
     nome VARCHAR(260) NOT NULL,
     PRIMARY KEY (treino_id, ordem),
     FOREIGN KEY (treino_id) REFERENCES treinos(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS treino_exercicios (
     treino_id BIGINT UNSIGNED NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS treino_exercicios (
     PRIMARY KEY (treino_id, ordem),
     FOREIGN KEY (treino_id) REFERENCES treinos(id) ON DELETE CASCADE,
     FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS configuracoes_exercicio (
     usuario_id INT UNSIGNED NOT NULL,
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS configuracoes_exercicio (
     PRIMARY KEY (usuario_id, exercicio_id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS agenda_semanal (
     usuario_id INT UNSIGNED NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS agenda_semanal (
     PRIMARY KEY (usuario_id, dia, treino_id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     FOREIGN KEY (treino_id) REFERENCES treinos(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS atividades_diarias (
     usuario_id INT UNSIGNED NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS atividades_diarias (
     tipo ENUM('treino','checkin') NOT NULL,
     PRIMARY KEY (usuario_id, dia, tipo),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS treino_sessoes (
     usuario_id INT UNSIGNED PRIMARY KEY,
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS treino_sessoes (
     atividade_ms DOUBLE NOT NULL,
     concede_xp BOOLEAN NOT NULL,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS sessao_treinos (
     usuario_id INT UNSIGNED NOT NULL,
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS sessao_treinos (
     codigo_treino VARCHAR(100) NOT NULL,
     PRIMARY KEY (usuario_id, ordem),
     FOREIGN KEY (usuario_id) REFERENCES treino_sessoes(usuario_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS sessao_exercicios (
     usuario_id INT UNSIGNED NOT NULL,
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS sessao_exercicios (
     PRIMARY KEY (usuario_id, ordem),
     FOREIGN KEY (usuario_id) REFERENCES treino_sessoes(usuario_id) ON DELETE CASCADE,
     FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS exercicio_anatomia (
  exercicio_id BIGINT UNSIGNED NOT NULL,
@@ -167,11 +167,11 @@ CREATE TABLE IF NOT EXISTS exercicio_anatomia (
  musculo VARCHAR(200) NOT NULL,
  PRIMARY KEY (exercicio_id,papel,ordem),
  FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS exercicio_instrucoes (
  exercicio_id BIGINT UNSIGNED NOT NULL,
  ordem INT UNSIGNED NOT NULL,
  instrucao TEXT NOT NULL,
  PRIMARY KEY (exercicio_id,ordem),
  FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
